@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"flag"
 	"log"
 	"os"
 	"strconv"
@@ -18,7 +19,11 @@ type Record struct {
 func main() {
 	fmt.Println("Starting quiz...")
 
-	csvFile, err := os.Open("problems.csv")
+	var fname = flag.String("csv", "problems.csv", "The file that we get the questions and answers from")
+	flag.Parse()
+	fmt.Println(*fname)
+
+	csvFile, err := os.Open(*fname)
 	if err != nil {
 		fmt.Println("Error opening file")
 		return
