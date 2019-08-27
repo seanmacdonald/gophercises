@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 )
 
 type Record struct {
@@ -48,22 +49,33 @@ func main() {
 		records = append(records, rec)
 	}
 
-	//play game with the records now loaded
+	//play game with the records now loaded and start timer
+	end_time := make(chan string)
+	go timer(*time_limit, end_time)
+
 	player_score := 0
 	max_score := len(records)
-	for _, rec := range records {
-		fmt.Print("Question: ", rec.question, ": ")
+
+GameLoop:
+	for num, rec := range records {
+		fmt.Print("Question ", num + 1, ": ", rec.question, ": ")
 		c := make(chan string)
 		var input_ans int
 		go input(c)
 
 		//wait for time to end or user input
-	Loop:
+	IdleLoop:
 		for {
 			select {
 			case x := <-c:
 				input_ans, _ = strconv.Atoi(x)
-				break Loop
+				break IdleLoop
+
+			case y := <-end_time:
+				if y == "END" {
+					fmt.Println("\nTime is up.")
+					break GameLoop
+				}
 			}
 
 		}
@@ -83,4 +95,10 @@ func input(c chan string) {
 	fmt.Scanln(&in)
 	c <- in
 	close(c)
+}
+
+func timer(seconds int, c chan string) {
+	var val time.Duration = time.Duration(seconds * 1000)
+	time.Sleep(val * time.Millisecond)
+	c <- "END"
 }
