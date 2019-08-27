@@ -3,9 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
-	"flag"
 	"log"
 	"os"
 	"strconv"
@@ -17,11 +17,12 @@ type Record struct {
 }
 
 func main() {
-	fmt.Println("Starting quiz...")
-
+	//first check flags to determine which game file to use
 	var fname = flag.String("csv", "problems.csv", "The file that we get the questions and answers from")
+	var time_limit = flag.Int("timer", 30, "Time limit for the quiz.")
 	flag.Parse()
 	fmt.Println(*fname)
+	fmt.Println(*time_limit)
 
 	csvFile, err := os.Open(*fname)
 	if err != nil {
@@ -32,7 +33,8 @@ func main() {
 	r := csv.NewReader(bufio.NewReader(csvFile))
 	r.FieldsPerRecord = 2
 
-	records := []Record{}
+	//records := []Record{}
+	records := make([]Record, 0, 100)
 	for {
 		cur_record, read_err := r.Read()
 		if read_err == io.EOF {
@@ -46,14 +48,25 @@ func main() {
 		records = append(records, rec)
 	}
 
-	//play game with the records now loaded 
+	//play game with the records now loaded
 	player_score := 0
 	max_score := len(records)
 	for _, rec := range records {
 		fmt.Print("Question: ", rec.question, ": ")
-		var input string
-		fmt.Scanln(&input)
-		input_ans, _ := strconv.Atoi(input)
+		c := make(chan string)
+		var input_ans int
+		go input(c)
+
+		//wait for time to end or user input
+	Loop:
+		for {
+			select {
+			case x := <-c:
+				input_ans, _ = strconv.Atoi(x)
+				break Loop
+			}
+
+		}
 
 		//check to see if it matches the answer
 		correct_ans, _ := strconv.Atoi(rec.answer)
@@ -63,4 +76,11 @@ func main() {
 	}
 
 	fmt.Print("You scored ", player_score, " out of ", max_score, " points.\n")
+}
+
+func input(c chan string) {
+	var in string
+	fmt.Scanln(&in)
+	c <- in
+	close(c)
 }
