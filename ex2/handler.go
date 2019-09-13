@@ -1,6 +1,7 @@
 package urlshort
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -11,8 +12,22 @@ import (
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
 func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
-	//	TODO: Implement this...
-	return nil
+
+	var hf http.HandlerFunc
+
+	hf = func(w http.ResponseWriter, r *http.Request) {
+		var req_path string
+		req_path = r.URL.String()
+
+		if val, ok := pathsToUrls[req_path]; ok {
+			fmt.Println("Go to this url: " + val)
+			http.Redirect(w, r, val, http.StatusSeeOther)
+		} else {
+			fallback.ServeHTTP(w, r)
+		}
+	}
+
+	return hf
 }
 
 // YAMLHandler will parse the provided YAML and then return
