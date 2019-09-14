@@ -1,3 +1,3 @@
-Doing the exercies provided by gophercises.  
+Completing the Golang exercises provide by https://gophercises.com/  
 
 
