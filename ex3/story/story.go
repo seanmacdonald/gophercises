@@ -48,4 +48,5 @@ type Info struct {
 type OptObjects struct {
 	Text string `json:"text"`
 	Arc string `json:"arc"`
+	Url string 
 }
