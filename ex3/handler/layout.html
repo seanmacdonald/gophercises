@@ -1,0 +1,15 @@
+<head>
+</head>
+<body>
+    <h1>{{.Title}}</h1>
+    {{range .Story}}
+        <p>{{.}}</p>
+    {{end}}
+
+    <br>
+
+    <!--TODO: fix the link so it routes to the appropriate path-->
+    {{range .Options}}
+        <a href="http://localhost:8080/sean-kelly">{{.Text}}</a><br>
+    {{end}}
+</body>
