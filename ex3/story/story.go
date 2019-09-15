@@ -21,6 +21,7 @@ func GetStory() map[string]Info {
 
 	//otherwise the file was opened successfully so defer the closing of it 
 	defer jsonFile.Close()
+	defer os.Chdir("../main")
 
 	//now get byte slice from opened file 
 	byteVals, readErr := ioutil.ReadAll(jsonFile)
